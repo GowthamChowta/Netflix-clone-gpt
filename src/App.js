@@ -5,11 +5,13 @@ import Browse from "./components/Browse";
 import { createBrowserRouter } from "react-router-dom";
 import { RouterProvider } from "react-router-dom";
 import Login from "./components/Login";
+import { Provider } from "react-redux";
+import appStore from "./utils/appStore";
 
 const appRouter = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
+    element: <Body />,
   },
   {
     path: "/browse",
@@ -18,7 +20,11 @@ const appRouter = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={appRouter} />;
+  return (
+    <Provider store={appStore}>
+      <RouterProvider router={appRouter}> </RouterProvider>;
+    </Provider>
+  );
 }
 
 export default App;
