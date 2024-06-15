@@ -7,6 +7,9 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
+import { backgroundImg } from "../utils/constants";
 
 const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -14,16 +17,13 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
+  const dispatch = useDispatch();
 
   const onButtonClicked = () => {
-    console.log("Sign in clicked");
-    console.log(email.current.value);
-    console.log(password.current.value);
     const message = validateFormInputs(
       email.current.value,
       password.current.value
     );
-    console.log(message);
     setErrorMessage(message);
     if (message === null && !isSignIn) {
       createUserWithEmailAndPassword(
@@ -32,17 +32,31 @@ const Login = () => {
         password.current.value
       )
         .then((res) => {
-          console.log("I am here");
-          console.log(res.user);
+          const displayName = name.current.value;
+          const { uid, email } = res.user;
+          email.current.value = "";
+          password.current.value = "";
+
           updateProfile(res.user, {
-            displayName: name.current.value,
+            displayName: displayName,
           })
-            .then(console.log("profile updated"))
-            .catch((err) => console.log(err));
+            .then(() => {
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                })
+              );
+            })
+            .catch((err) => {
+              console.log("Profile name is not updated");
+            });
         })
-        .catch((err) => console.log("Error message is", err));
-      email.current.value = "";
-      password.current.value = "";
+        .catch((err) => {
+          console.log("Error message is", err);
+          setErrorMessage(err.message);
+        });
     } else if (message === null && isSignIn) {
       signInWithEmailAndPassword(
         auth,
@@ -50,7 +64,10 @@ const Login = () => {
         password.current.value
       )
         .then((res) => console.log(res.user))
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          setErrorMessage(error.message);
+        });
     } else {
       console.log("Test");
     }
@@ -64,10 +81,7 @@ const Login = () => {
     <div>
       <Header />
       <div className="absolute text-white">
-        <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/a99688ca-33c3-4099-9baa-07a2e2acb398/2dcb03b9-b710-4bb4-a7f7-799c2dfb3205/US-en-20240520-popsignuptwoweeks-perspective_alpha_website_large.jpg"
-          alt="background-image"
-        ></img>
+        <img src={backgroundImg} alt="background-image"></img>
       </div>
 
       <form

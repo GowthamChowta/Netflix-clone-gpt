@@ -8,6 +8,6 @@ export const validateFormInputs = (email, password) => {
   );
 
   if (!isEmailValid) return "Email id is invalid";
-  if (!isPasswordValid) return "Password is invalid";
+  // if (!isPasswordValid) return "Password is invalid";
   return null;
 };
